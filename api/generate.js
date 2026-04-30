@@ -11,7 +11,11 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { tool, inputs } = req.body;
+let body = req.body;
+if (typeof body === 'string') {
+  try { body = JSON.parse(body); } catch(e) { return res.status(400).json({ error: 'Invalid JSON' }); }
+}
+const { tool, inputs } = body || {};
 
   if (!tool || !inputs) {
     return res.status(400).json({ error: 'Missing tool or inputs' });
