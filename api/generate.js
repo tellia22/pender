@@ -63,17 +63,18 @@ My Name/Brokerage: ${inputs.agentName || 'Your Agent'}`
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 1024,
         system: systemPrompts[tool],
         messages: [{ role: 'user', content: userPrompts[tool] }]
       })
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      return res.status(response.status).json({ error: error.error?.message || 'API error' });
-    }
+   if (!response.ok) {
+  const error = await response.json();
+  console.log('Anthropic error:', JSON.stringify(error));
+  return res.status(response.status).json({ error: error.error?.message || JSON.stringify(error) });
+}
 
     const data = await response.json();
     const text = data.content[0]?.text || '';
