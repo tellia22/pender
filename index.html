@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pender — AI Writing for Real Estate Agents</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a18;
+    --ink-soft: #4a4a44;
+    --ink-muted: #8a8a80;
+    --gold: #b8935a;
+    --gold-light: #d4aa72;
+    --cream: #f8f5ef;
+    --cream-dark: #ede8de;
+    --white: #ffffff;
+    --border: #e2ddd4;
+    --success: #2d6a4f;
+    --radius: 6px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  header {
+    background: var(--ink);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--gold-light);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  .logo span {
+    color: rgba(255,255,255,0.35);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    margin-left: 12px;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  .header-cta {
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s;
+  }
+
+  .header-cta:hover { background: var(--gold-light); }
+
+  /* Hero */
+  .hero {
+    background: var(--ink);
+    padding: 64px 2rem 72px;
+    text-align: center;
+    border-bottom: 1px solid rgba(184,147,90,0.2);
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 6vw, 60px);
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 20px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .hero p {
+    color: rgba(255,255,255,0.55);
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 480px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  .usage-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(184,147,90,0.12);
+    border: 1px solid rgba(184,147,90,0.25);
+    border-radius: 100px;
+    padding: 8px 20px;
+    color: var(--gold-light);
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .usage-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* App Container */
+  .app {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 2rem 80px;
+  }
+
+  /* Tool Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--cream-dark);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--ink); background: rgba(255,255,255,0.5); }
+
+  .tab.active {
+    background: var(--white);
+    color: var(--ink);
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  /* Tool Panel */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 28px;
+  }
+
+  .panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .panel-desc {
+    color: var(--ink-muted);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  /* Form */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .form-grid.single { grid-template-columns: 1fr; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.span-2 { grid-column: span 2; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input[type="text"],
+  textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+    outline: none;
+    width: 100%;
+    resize: vertical;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,147,90,0.1);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ink-muted);
+    font-weight: 300;
+  }
+
+  textarea { min-height: 90px; }
+
+  /* Generate Button */
+  .generate-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .generate-btn:hover { background: #2d2d28; }
+  .generate-btn:active { transform: scale(0.99); }
+  .generate-btn:disabled { background: var(--ink-muted); cursor: not-allowed; }
+
+  .btn-icon { font-size: 16px; }
+
+  /* Output */
+  .output-section {
+    margin-top: 32px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .output-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .output-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .output-box {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--ink);
+    white-space: pre-wrap;
+    position: relative;
+  }
+
+  .output-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    justify-content: flex-end;
+  }
+
+  .action-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .action-btn:hover { border-color: var(--gold); color: var(--ink); }
+
+  .action-btn.copy-success {
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  /* Loading */
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--ink-muted);
+    font-size: 14px;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  /* Paywall Overlay */
+  .paywall-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,24,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .paywall-overlay.visible { display: flex; }
+
+  .paywall-card {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 48px 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .paywall-icon {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .paywall-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .paywall-card p {
+    color: var(--ink-muted);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .paywall-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 28px;
+  }
+
+  .paywall-price .amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .paywall-price .currency {
+    font-size: 22px;
+    color: var(--ink-soft);
+    align-self: flex-start;
+    margin-top: 10px;
+  }
+
+  .paywall-price .period {
+    font-size: 15px;
+    color: var(--ink-muted);
+    font-weight: 300;
+  }
+
+  .paywall-features {
+    list-style: none;
+    margin-bottom: 32px;
+    text-align: left;
+    display: inline-block;
+  }
+
+  .paywall-features li {
+    font-size: 14px;
+    color: var(--ink-soft);
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .paywall-features li::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: var(--gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='8' viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .paywall-cta {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+    margin-bottom: 12px;
+  }
+
+  .paywall-cta:hover { background: #2d2d28; }
+
+  .paywall-dismiss {
+    font-size: 13px;
+    color: var(--ink-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    padding: 4px;
+  }
+
+  .paywall-dismiss:hover { color: var(--ink); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--ink-muted);
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  footer a { color: var(--ink-muted); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid.three { grid-template-columns: 1fr; }
+    .field.span-2 { grid-column: span 1; }
+    .tabs { flex-wrap: wrap; }
+    .tab { font-size: 12px; padding: 8px 6px; }
+    .paywall-card { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">Pender <span>For Real Estate</span></a>
+  <a href="#upgrade" class="header-cta" id="header-upgrade-btn">Upgrade — $39/mo</a>
+</header>
+
+<div class="hero">
+  <p class="hero-eyebrow">Your AI writing partner</p>
+  <h1>Write like a <em>seasoned agent.</em><br>In thirty seconds.</h1>
+  <p>Pender handles your listing descriptions, follow-up emails, negotiation copy, and open house invites — so you can focus on closing.</p>
+  <div class="usage-counter" id="usage-display">
+    <div class="usage-dot"></div>
+    <span id="usage-text">3 free generations remaining</span>
+  </div>
+</div>
+
+<div class="app">
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" onclick="switchTab('listing')" id="tab-listing">Listing Description</button>
+    <button class="tab" onclick="switchTab('buyerEmail')" id="tab-buyerEmail">Buyer Follow-Up</button>
+    <button class="tab" onclick="switchTab('negotiationEmail')" id="tab-negotiationEmail">Negotiation Email</button>
+    <button class="tab" onclick="switchTab('openHouse')" id="tab-openHouse">Open House Invite</button>
+  </div>
+
+  <!-- Listing Description -->
+  <div class="panel active" id="panel-listing">
+    <div class="panel-header">
+      <h2 class="panel-title">Listing Description</h2>
+      <p class="panel-desc">MLS-ready copy that sells the lifestyle, not just the features.</p>
+    </div>
+    <div class="form-grid three">
+      <div class="field">
+        <label>Address</label>
+        <input type="text" id="l-address" placeholder="123 Maple St, Atlanta GA">
+      </div>
+      <div class="field">
+        <label>Beds / Baths</label>
+        <input type="text" id="l-beds" placeholder="4BD / 3BA">
+      </div>
+      <div class="field">
+        <label>Sq. Footage</label>
+        <input type="text" id="l-sqft" placeholder="2,400 sqft">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>List Price</label>
+        <input type="text" id="l-price" placeholder="$525,000">
+      </div>
+      <div class="field">
+        <label>Neighborhood</label>
+        <input type="text" id="l-neighborhood" placeholder="Inman Park, walkable to BeltLine">
+      </div>
+    </div>
+    <div class="form-grid single">
+      <div class="field">
+        <label>Key Features</label>
+        <textarea id="l-features" placeholder="Renovated kitchen, quartz counters, primary suite with spa bath, screened porch, 2-car garage..."></textarea>
+      </div>
+      <div class="field">
+        <label>Additional Notes (optional)</label>
+        <textarea id="l-notes" placeholder="New roof 2023, seller prefers quick close, great school district..."></textarea>
+      </div>
+    </div>
+    <button class="generate-btn" onclick="generate('listing')">
+      <span class="btn-icon">✦</span> Generate with Pender
+    </button>
+    <div id="output-listing"></div>
+  </div>
+
+  <!-- Buyer Follow-Up -->
+  <div class="panel" id="panel-buyerEmail">
+    <div class="panel-header">
+      <h2 class="panel-title">Buyer Follow-Up Email</h2>
+      <p class="panel-desc">Keep the relationship warm and the deal moving forward.</p>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Buyer's Name</label>
+        <input type="text" id="b-buyerName" placeholder="Sarah & Mike">
+      </div>
+      <div class="field">
+        <label>Date of Showing</label>
+        <input type="text" id="b-showingDate" placeholder="Yesterday, April 28">
+      </div>
+    </div>
+    <div class="form-grid single">
+      <div class="field">
+        <label>Properties Shown</label>
+        <input type="text" id="b-properties" placeholder="3 homes in Decatur, especially the one on Oak St">
+      </div>
+      <div class="field">
+        <label>Buyer's Key Preferences</label>
+        <textarea id="b-preferences" placeholder="Love open floor plans, need home office, max $600k, top school district..."></textarea>
+      </div>
+      <div class="field">
+        <label>Suggested Next Steps</label>
+        <input type="text" id="b-nextSteps" placeholder="Schedule a second showing on Oak St this weekend">
+      </div>
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="b-agentName" placeholder="Alex Johnson, Coldwell Banker">
+      </div>
+    </div>
+    <button class="generate-btn" onclick="generate('buyerEmail')">
+      <span class="btn-icon">✦</span> Generate with Pender
+    </button>
+    <div id="output-buyerEmail"></div>
+  </div>
+
+  <!-- Negotiation Email -->
+  <div class="panel" id="panel-negotiationEmail">
+    <div class="panel-header">
+      <h2 class="panel-title">Negotiation Email</h2>
+      <p class="panel-desc">Strategic, professional communication that protects your client's position.</p>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Situation</label>
+        <input type="text" id="n-situation" placeholder="Submitting offer below asking, countering a counter...">
+      </div>
+      <div class="field">
+        <label>Property Address</label>
+        <input type="text" id="n-propertyAddress" placeholder="456 Oak Avenue, Decatur GA">
+      </div>
+    </div>
+    <div class="form-grid single">
+      <div class="field">
+        <label>Offer / Situation Details</label>
+        <textarea id="n-offerDetails" placeholder="Offering $489k on a $510k list, all cash, 21-day close, waiving inspection contingency..."></textarea>
+      </div>
+      <div class="field">
+        <label>Key Points to Communicate</label>
+        <textarea id="n-keyPoints" placeholder="Strong buyer, serious offer, willing to be flexible on timeline, seller should consider market data..."></textarea>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Tone Needed</label>
+        <input type="text" id="n-tone" placeholder="Firm but collaborative">
+      </div>
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="n-agentName" placeholder="Alex Johnson, Coldwell Banker">
+      </div>
+    </div>
+    <button class="generate-btn" onclick="generate('negotiationEmail')">
+      <span class="btn-icon">✦</span> Generate with Pender
+    </button>
+    <div id="output-negotiationEmail"></div>
+  </div>
+
+  <!-- Open House -->
+  <div class="panel" id="panel-openHouse">
+    <div class="panel-header">
+      <h2 class="panel-title">Open House Invite</h2>
+      <p class="panel-desc">Turn a showing into an event people actually want to attend.</p>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Property Address</label>
+        <input type="text" id="o-address" placeholder="789 Peachtree Rd NE, Atlanta GA">
+      </div>
+      <div class="field">
+        <label>Date & Time</label>
+        <input type="text" id="o-datetime" placeholder="Sunday, May 4 · 1–4 PM">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Price</label>
+        <input type="text" id="o-price" placeholder="$649,000">
+      </div>
+      <div class="field">
+        <label>Neighborhood</label>
+        <input type="text" id="o-neighborhood" placeholder="Buckhead, steps from Phipps Plaza">
+      </div>
+    </div>
+    <div class="form-grid single">
+      <div class="field">
+        <label>Key Highlights</label>
+        <textarea id="o-highlights" placeholder="Chef's kitchen, rooftop terrace, panoramic skyline views, designer finishes throughout..."></textarea>
+      </div>
+      <div class="field">
+        <label>Your Name / Brokerage</label>
+        <input type="text" id="o-agentName" placeholder="Alex Johnson, Atlanta Fine Homes Sotheby's">
+      </div>
+    </div>
+    <button class="generate-btn" onclick="generate('openHouse')">
+      <span class="btn-icon">✦</span> Generate with Pender
+    </button>
+    <div id="output-openHouse"></div>
+  </div>
+
+</div>
+
+<!-- Paywall -->
+<div class="paywall-overlay" id="paywall">
+  <div class="paywall-card">
+    <div class="paywall-icon">P</div>
+    <h2>You've met Pender.</h2>
+    <p>Your 3 free generations are up. Unlock unlimited access and take Pender to work with you every day.</p>
+    <div class="paywall-price">
+      <span class="currency">$</span>
+      <span class="amount">39</span>
+      <span class="period">&nbsp;/ month</span>
+    </div>
+    <ul class="paywall-features">
+      <li>Unlimited listing descriptions</li>
+      <li>Unlimited buyer & offer emails</li>
+      <li>Unlimited open house copy</li>
+      <li>MLS-compliant, Fair Housing safe</li>
+      <li>Cancel anytime</li>
+    </ul>
+    <a href="YOUR_STRIPE_PAYMENT_LINK" class="paywall-cta" id="stripe-link">Unlock Pender — $39/mo</a>
+    <button class="paywall-dismiss" onclick="closePaywall()">Maybe later</button>
+  </div>
+</div>
+
+<footer>
+  <p>Powered by AI &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; © 2026 Pender</p>
+</footer>
+
+<script>
+  const FREE_LIMIT = 3;
+  const STORAGE_KEY = 'pender_uses';
+
+  function getUses() {
+    return parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+  }
+
+  function incrementUses() {
+    const uses = getUses() + 1;
+    localStorage.setItem(STORAGE_KEY, uses.toString());
+    return uses;
+  }
+
+  function updateUsageDisplay() {
+    const uses = getUses();
+    const remaining = Math.max(0, FREE_LIMIT - uses);
+    const el = document.getElementById('usage-text');
+    if (remaining === 0) {
+      el.textContent = 'Free generations used — upgrade for unlimited';
+    } else {
+      el.textContent = `${remaining} free generation${remaining === 1 ? '' : 's'} remaining`;
+    }
+  }
+
+  function switchTab(tool) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tool).classList.add('active');
+    document.getElementById('panel-' + tool).classList.add('active');
+  }
+
+  function getInputs(tool) {
+    const get = id => (document.getElementById(id)?.value || '').trim();
+    if (tool === 'listing') return {
+      address: get('l-address'), beds: get('l-beds'), sqft: get('l-sqft'),
+      price: get('l-price'), neighborhood: get('l-neighborhood'),
+      features: get('l-features'), notes: get('l-notes')
+    };
+    if (tool === 'buyerEmail') return {
+      buyerName: get('b-buyerName'), showingDate: get('b-showingDate'),
+      properties: get('b-properties'), preferences: get('b-preferences'),
+      nextSteps: get('b-nextSteps'), agentName: get('b-agentName')
+    };
+    if (tool === 'negotiationEmail') return {
+      situation: get('n-situation'), propertyAddress: get('n-propertyAddress'),
+      offerDetails: get('n-offerDetails'), keyPoints: get('n-keyPoints'),
+      tone: get('n-tone'), agentName: get('n-agentName')
+    };
+    if (tool === 'openHouse') return {
+      address: get('o-address'), datetime: get('o-datetime'),
+      price: get('o-price'), neighborhood: get('o-neighborhood'),
+      highlights: get('o-highlights'), agentName: get('o-agentName')
+    };
+  }
+
+  async function generate(tool) {
+    const uses = getUses();
+    if (uses >= FREE_LIMIT) {
+      document.getElementById('paywall').classList.add('visible');
+      return;
+    }
+
+    const outputEl = document.getElementById('output-' + tool);
+    const btn = document.querySelector(`#panel-${tool} .generate-btn`);
+
+    outputEl.innerHTML = `
+      <div class="output-section">
+        <div class="loading">
+          <div class="spinner"></div>
+          Pender is writing…
+        </div>
+      </div>`;
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;border-top-color:white"></div> Writing…';
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool, inputs: getInputs(tool) })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      const newUses = incrementUses();
+      updateUsageDisplay();
+
+      outputEl.innerHTML = `
+        <div class="output-section">
+          <div class="output-label">Pender's draft</div>
+          <div class="output-box" id="result-text-${tool}">${escapeHtml(data.result)}</div>
+          <div class="output-actions">
+            <button class="action-btn" onclick="copyOutput('${tool}')">Copy</button>
+            <button class="action-btn" onclick="generate('${tool}')">Regenerate</button>
+          </div>
+        </div>`;
+
+      if (newUses >= FREE_LIMIT) {
+        setTimeout(() => {
+          document.getElementById('paywall').classList.add('visible');
+        }, 3000);
+      }
+
+    } catch (err) {
+      outputEl.innerHTML = `
+        <div class="output-section">
+          <div class="output-box" style="color: #a32d2d;">
+            Something went wrong: ${escapeHtml(err.message)}. Please try again.
+          </div>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-icon">✦</span> Generate with Pender';
+    }
+  }
+
+  function copyOutput(tool) {
+    const text = document.getElementById('result-text-' + tool)?.textContent || '';
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector(`#panel-${tool} .action-btn`);
+      if (btn) {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copy-success');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copy-success');
+        }, 2000);
+      }
+    });
+  }
+
+  function closePaywall() {
+    document.getElementById('paywall').classList.remove('visible');
+  }
+
+  document.getElementById('header-upgrade-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('paywall').classList.add('visible');
+  });
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  updateUsageDisplay();
+</script>
+</body>
+</html>
