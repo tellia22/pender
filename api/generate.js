@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') console.log('Key starts with:', (process.env.ANTHROPIC_API_KEY || 'MISSING').substring(0, 10)); {
     return res.status(405).json({ error: 'Method not allowed' });
   }
